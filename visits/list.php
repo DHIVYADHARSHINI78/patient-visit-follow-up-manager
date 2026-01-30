@@ -1,21 +1,18 @@
 <?php
 require_once __DIR__ . '/../config/init.php';
-
-
 require_once '../config/db.php';
  include '../includes/header.php';
 
-// 1. Pagination Configuration
+
 $limit = 5; 
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 if ($page < 1) $page = 1;
 $offset = ($page - 1) * $limit;
 
-// 2. Get filter inputs
 $search = $_GET['search'] ?? '';
 $status_filter = $_GET['status_filter'] ?? '';
 
-// 3. Build the Base WHERE Clause
+
 $where = " WHERE (p.name LIKE :search) ";
 $params = ['search' => "%$search%"];
 
@@ -25,14 +22,14 @@ if ($status_filter == 'Overdue') {
     $where .= " AND v.follow_up_due BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 7 DAY)";
 }
 
-// 4. SQL: Get Total Count
+
 $count_sql = "SELECT COUNT(*) FROM visits v JOIN patients p ON v.patient_id = p.patient_id $where";
 $count_stmt = $pdo->prepare($count_sql);
 $count_stmt->execute($params);
 $total_rows = $count_stmt->fetchColumn();
 $total_pages = ceil($total_rows / $limit);
 
-// 5. SQL: Fetch Paginated Results
+
 $sql = "SELECT v.*, p.name,
         DATEDIFF(CURDATE(), v.visit_date) AS days_since_visit,
         (v.consultation_fee + v.lab_fee) AS total_bill,
@@ -88,6 +85,8 @@ $stmt->execute();
             <th>Total ($)</th>
             <th>Follow-up Due</th>
             <th>Status</th>
+            
+
         </tr>
     </thead>
     <tbody>
