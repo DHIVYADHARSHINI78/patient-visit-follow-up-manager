@@ -20,7 +20,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $sql = "INSERT INTO patients (name, dob, join_date, phone, address) VALUES (?, ?, ?, ?, ?)";
         $pdo->prepare($sql)->execute([$name, $dob, $join_date, $phone, $address]);
         
-        echo "<script>window.location.href='list.php';</script>";
+     
+echo "<script>window.location.href='/patient-visit-follow-up-manager/patients/list.php';</script>";
         exit;
     }
 }
@@ -66,4 +67,4 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </form>
 </div>
 
-<?php include '../includes/footer.php'; ?>
+<?php include '../includes/footer.php'; ?>  

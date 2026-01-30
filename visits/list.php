@@ -3,17 +3,16 @@ require_once __DIR__ . '/../config/init.php';
 require_once '../config/db.php';
 include '../includes/header.php';
 
-// Pagination
+
 $limit = 5;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 if ($page < 1) $page = 1;
 $offset = ($page - 1) * $limit;
 
-// Search & Status Filter
 $search = $_GET['search'] ?? '';
 $status_filter = $_GET['status_filter'] ?? '';
 
-// Base WHERE clause
+
 $where = " WHERE (p.name LIKE :search) ";
 $params = ['search' => "%$search%"];
 
@@ -81,38 +80,42 @@ $stmt->execute();
         <tr>
             <th>Patient</th>
             <th>Visit Date</th>
-            <th>Consultation ($)</th>
-            <th>Lab ($)</th>
-            <th>Total ($)</th>
+            <th>Consultation $</th>
+            <th>Lab $</th>
+            <th>Total $</th>
             <th>Follow-up Due</th>
             <th>Status</th>
+            <th>History</td>
         </tr>
     </thead>
     <tbody>
-        <?php if ($stmt->rowCount() > 0): ?>
-            <?php while($row = $stmt->fetch()): ?>
-            <tr>
-                <td>
-                    <a href="patient_visits.php?patient_id=<?= $row['patient_id'] ?>">
-                        <strong><?= htmlspecialchars($row['name']) ?></strong>
-                    </a>
-                </td>
-                <td><?= $row['visit_date'] ?></td>
-                <td><?= number_format($row['consultation_fee'], 2) ?></td>
-                <td><?= number_format($row['lab_fee'], 2) ?></td>
-                <td class="fw-bold"><?= number_format($row['total_bill'], 2) ?></td>
-                <td><?= $row['follow_up_due'] ?></td>
-                <td>
-                    <span class="badge <?= $row['visit_status'] == 'Overdue' ? 'bg-danger' : ($row['visit_status'] == 'Upcoming' ? 'bg-warning text-dark' : 'bg-success') ?>">
-                        <?= $row['visit_status'] ?>
-                    </span>
-                </td>
-            </tr>
-            <?php endwhile; ?>
-        <?php else: ?>
-            <tr><td colspan="7" class="text-center py-4">No visits found matching your criteria.</td></tr>
-        <?php endif; ?>
-    </tbody>
+    <?php if ($stmt->rowCount() > 0): ?>
+        <?php while($row = $stmt->fetch()): ?>
+        <tr>
+            <td>
+                <strong><?= htmlspecialchars($row['name']) ?></strong>
+            </td>
+            <td><?= $row['visit_date'] ?></td>
+            <td><?= number_format($row['consultation_fee'], 2) ?></td>
+            <td><?= number_format($row['lab_fee'], 2) ?></td>
+            <td class="fw-bold"><?= number_format($row['total_bill'], 2) ?></td>
+            <td><?= $row['follow_up_due'] ?></td>
+            <td>
+                <span class="badge <?= $row['visit_status'] == 'Overdue' ? 'bg-danger' : ($row['visit_status'] == 'Upcoming' ? 'bg-warning text-dark' : 'bg-success') ?>">
+                    <?= $row['visit_status'] ?>
+                </span>
+            </td>
+            <td>
+                <a href="patient_visits.php?id=<?= $row['patient_id'] ?>" class="btn btn-sm btn-outline-info">
+                    <i class="bi bi-clock-history"></i> History
+                </a>
+            </td>
+        </tr>
+        <?php endwhile; ?>
+    <?php else: ?>
+        <tr><td colspan="8" class="text-center py-4">No visits found matching your criteria.</td></tr>
+    <?php endif; ?>
+</tbody>
 </table>
 
 <?php if ($total_pages > 1): ?>

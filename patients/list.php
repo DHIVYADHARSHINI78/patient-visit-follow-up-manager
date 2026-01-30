@@ -1,8 +1,6 @@
 <?php
 require_once __DIR__ . '/../config/init.php';
 
-
-
 require_once __DIR__ . '/../config/db.php';
 
 include_once __DIR__ . '/../includes/header.php'; 
