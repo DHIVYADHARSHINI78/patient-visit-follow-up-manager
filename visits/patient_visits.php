@@ -2,10 +2,7 @@
 require_once '../config/db.php';
 include '../includes/header.php';
 
-/**
- * STEP 1: SAFETY CHECK
- * We check if 'id' exists in the URL (e.g., patient_visits.php?id=1)
- */
+
 if (!isset($_GET['id']) || empty($_GET['id'])) {
     echo "<div class='container mt-5 text-center'>
             <div class='alert alert-danger shadow'>
@@ -19,10 +16,7 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 
 $id = $_GET['id'];
 
-/**
- * STEP 2: SQL CALCULATIONS (Strictly Task 006 Rules)
- * We calculate Total Visits, Treatment Span, and Days Since Last Visit in one query.
- */
+
 $sql = "SELECT p.name, p.patient_id,
         COUNT(v.visit_id) as total_visits,
         DATEDIFF(MAX(v.visit_date), MIN(v.visit_date)) as treatment_span_days,
@@ -36,7 +30,7 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute([$id]);
 $stats = $stmt->fetch();
 
-// If the ID in the URL doesn't exist in the database
+
 if (!$stats) {
     echo "<div class='container mt-5'><div class='alert alert-warning'>Patient record not found.</div></div>";
     include '../includes/footer.php';
@@ -102,7 +96,7 @@ if (!$stats) {
                 </thead>
                 <tbody>
                     <?php
-                    // SQL: Calculating Total Bill (Consultation + Lab)
+                   
                     $v_stmt = $pdo->prepare("SELECT *, (consultation_fee + lab_fee) as total FROM visits WHERE patient_id = ? ORDER BY visit_date DESC");
                     $v_stmt->execute([$id]);
                     

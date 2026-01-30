@@ -1,29 +1,26 @@
 <?php
-require_once 'config/db.php';
-include 'includes/header.php'; // This ensures only logged-in admins can register others
+require_once 'config/db.php'; 
+include 'includes/header.php'; 
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = trim($_POST['username']);
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
 
-    // Basic Validation
     if ($password !== $confirm_password) {
         $error = "Passwords do not match!";
     } else {
-        // SQL Requirement: Check if username exists
         $check = $pdo->prepare("SELECT user_id FROM users WHERE username = ?");
         $check->execute([$username]);
         
         if ($check->rowCount() > 0) {
             $error = "Username already taken!";
         } else {
-            // Securely Hash Password
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-            
             $stmt = $pdo->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
+            
             if ($stmt->execute([$username, $hashed_password])) {
-                $success = "New user registered successfully!";
+                $success = "New user registered successfully, please wait!...";
             } else {
                 $error = "Something went wrong!";
             }
@@ -40,11 +37,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <h3 class="fw-bold mb-4">Register New Staff</h3>
                     
                     <?php if(isset($error)): ?>
-                        <div class="alert alert-danger"><?= $error ?></div>
+                        <div class="alert alert-danger" id="error-alert"><?= $error ?></div>
                     <?php endif; ?>
                     
                     <?php if(isset($success)): ?>
-                        <div class="alert alert-success"><?= $success ?></div>
+                        <div class="alert alert-success" id="success-alert">
+                            <i class="bi bi-check-circle-fill me-2"></i> <?= $success ?>
+                        </div>
                     <?php endif; ?>
 
                     <form method="POST">
@@ -67,5 +66,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
     </div>
 </div>
+
+<script>
+ 
+    const successAlert = document.getElementById('success-alert');
+    
+    if (successAlert) {
+    
+        setTimeout(() => {
+            successAlert.style.display = 'none';
+        }, 5000);
+
+       
+        setTimeout(() => {
+            window.location.href = 'login.php';
+        }, 10000);
+    }
+</script>
 
 <?php include 'includes/footer.php'; ?>

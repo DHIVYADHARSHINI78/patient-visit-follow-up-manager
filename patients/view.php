@@ -4,7 +4,6 @@ include '../includes/header.php';
 
 $id = $_GET['id'] ?? 0;
 
-// SQL does all the heavy lifting: Age, Overdue logic, and Date extraction
 $sql = "SELECT *, 
         TIMESTAMPDIFF(YEAR, dob, CURDATE()) AS age,
         DATEDIFF(CURDATE(), (SELECT MAX(visit_date) FROM visits WHERE patient_id = p.patient_id)) AS days_since_last,

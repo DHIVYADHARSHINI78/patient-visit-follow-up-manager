@@ -2,7 +2,7 @@
 require_once '../config/db.php';
 include '../includes/header.php';
 
-// 1. Logic for birthdays in next 30 days
+
 $upcomingBirthdays = $pdo->query("
     SELECT name, dob, 
     DATE_FORMAT(dob, '%d %M') AS birthday_date,
@@ -12,7 +12,7 @@ $upcomingBirthdays = $pdo->query("
           BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)
 ")->fetchAll();
 
-// 2. Logic for Milestones (Turning 40, 50, or 60 this calendar year)
+
 $milestones = $pdo->query("
     SELECT name, dob, 
     (YEAR(CURDATE()) - YEAR(dob)) AS reaching_age

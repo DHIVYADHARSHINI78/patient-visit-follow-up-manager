@@ -1,6 +1,7 @@
 <?php
+
 require_once '../config/db.php';
-include '../includes/header.php';
+ include '../includes/header.php';
 
 // 1. Pagination Configuration
 $limit = 5; 

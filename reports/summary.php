@@ -2,7 +2,7 @@
 require_once '../config/db.php';
 include '../includes/header.php';
 
-// SQL: Calculations for Age, Visits, and Follow-ups handled entirely in SQL
+
 $sql = "SELECT 
             p.name, 
             p.patient_id,
@@ -25,10 +25,10 @@ $stmt = $pdo->query($sql);
 ?>
 
 <style>
-    /* CSS to hide URL and Page Headers/Footers during Print */
+
     @media print {
         @page {
-            margin: 0.5cm; /* Small margin for a clean look */
+            margin: 0.5cm; 
         }
         body {
             background-color: white !important;
@@ -36,7 +36,7 @@ $stmt = $pdo->query($sql);
             margin: 0;
         }
         .btn, .sidebar, nav, .no-print {
-            display: none !important; /* Hides navigation and buttons */
+            display: none !important;
         }
         .card {
             box-shadow: none !important;

@@ -2,7 +2,7 @@
 require_once '../config/db.php';
 include '../includes/header.php';
 
-// 1. Query for Upcoming Follow-ups (Next 7 days)
+
 $upcoming_sql = "SELECT p.name, v.follow_up_due, DATEDIFF(v.follow_up_due, CURDATE()) as days_until
                  FROM visits v
                  JOIN patients p ON v.patient_id = p.patient_id
@@ -10,7 +10,7 @@ $upcoming_sql = "SELECT p.name, v.follow_up_due, DATEDIFF(v.follow_up_due, CURDA
                  ORDER BY v.follow_up_due ASC";
 $upcoming_stmt = $pdo->query($upcoming_sql);
 
-// 2. Query for Overdue Follow-ups
+
 $overdue_sql = "SELECT p.name, v.follow_up_due, DATEDIFF(CURDATE(), v.follow_up_due) as days_past
                 FROM visits v
                 JOIN patients p ON v.patient_id = p.patient_id
@@ -18,7 +18,7 @@ $overdue_sql = "SELECT p.name, v.follow_up_due, DATEDIFF(CURDATE(), v.follow_up_
                 ORDER BY v.follow_up_due DESC";
 $overdue_stmt = $pdo->query($overdue_sql);
 
-// 3. Query for Missed Follow-ups (No visit recorded AFTER the due date)
+
 $missed_sql = "SELECT p.name, v.follow_up_due
                FROM visits v
                JOIN patients p ON v.patient_id = p.patient_id

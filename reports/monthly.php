@@ -2,7 +2,7 @@
 require_once '../config/db.php';
 include '../includes/header.php';
 
-// SQL handles grouping by Month and Year
+
 $monthlyVisits = $pdo->query("
     SELECT DATE_FORMAT(visit_date, '%M %Y') AS month_name, 
            COUNT(visit_id) AS visit_count,

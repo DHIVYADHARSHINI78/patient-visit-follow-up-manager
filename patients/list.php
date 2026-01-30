@@ -1,19 +1,20 @@
 <?php
-require_once '../config/db.php';
-include '../includes/header.php';
+include_once __DIR__ . '/../includes/header.php'; 
 
-// 1. Pagination Settings
-$limit = 5; // Records per page
+
+require_once __DIR__ . '/../config/db.php';
+
+$limit = 5; 
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 if ($page < 1) $page = 1;
 $offset = ($page - 1) * $limit;
 
-// 2. Get Filters
+
 $search = $_GET['search'] ?? '';
 $min_age = $_GET['min_age'] ?? '';
 $max_age = $_GET['max_age'] ?? '';
 
-// 3. Build Base Query & Count Query (To know total pages)
+
 $where = " WHERE (name LIKE :search)";
 $params = ['search' => "%$search%"];
 
@@ -26,14 +27,12 @@ if ($max_age !== '') {
     $params['max_age'] = $max_age;
 }
 
-// Get total count for pagination math
 $count_sql = "SELECT COUNT(*) FROM patients $where";
 $count_stmt = $pdo->prepare($count_sql);
 $count_stmt->execute($params);
 $total_rows = $count_stmt->fetchColumn();
 $total_pages = ceil($total_rows / $limit);
 
-// 4. Final SQL with LIMIT/OFFSET
 $sql = "SELECT *, 
         YEAR(join_date) as join_year, MONTH(join_date) as join_month, DAY(join_date) as join_day,
         TIMESTAMPDIFF(YEAR, dob, CURDATE()) AS age_years,
@@ -45,11 +44,10 @@ $sql = "SELECT *,
         LIMIT :limit OFFSET :offset";
 
 $stmt = $pdo->prepare($sql);
-// Bind search/age params
+
 foreach ($params as $key => $val) {
     $stmt->bindValue($key, $val);
 }
-// Bind pagination params as Integers (Crucial for SQL)
 $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
 $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
 $stmt->execute();
@@ -119,7 +117,7 @@ $stmt->execute();
 <nav class="mt-4">
     <ul class="pagination justify-content-center">
         <?php for ($i = 1; $i <= $total_pages; $i++): 
-            // Build query string for links to keep filters active
+       
             $query_params = $_GET;
             $query_params['page'] = $i;
             $link = "?" . http_build_query($query_params);

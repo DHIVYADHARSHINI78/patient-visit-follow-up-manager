@@ -8,7 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $c_fee = $_POST['consultation_fee'];
     $l_fee = $_POST['lab_fee'];
 
-    // SQL Requirement: Follow-up date (visit_date + 7 days)
+   
     $sql = "INSERT INTO visits (patient_id, visit_date, consultation_fee, lab_fee, follow_up_due) 
             VALUES (?, ?, ?, ?, DATE_ADD(?, INTERVAL 7 DAY))";
     
