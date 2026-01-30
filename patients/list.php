@@ -1,8 +1,11 @@
 <?php
-include_once __DIR__ . '/../includes/header.php'; 
+require_once __DIR__ . '/../config/init.php';
+
 
 
 require_once __DIR__ . '/../config/db.php';
+
+include_once __DIR__ . '/../includes/header.php'; 
 
 $limit = 5; 
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
