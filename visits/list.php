@@ -1,18 +1,19 @@
 <?php
 require_once __DIR__ . '/../config/init.php';
 require_once '../config/db.php';
- include '../includes/header.php';
+include '../includes/header.php';
 
-
-$limit = 5; 
+// Pagination
+$limit = 5;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 if ($page < 1) $page = 1;
 $offset = ($page - 1) * $limit;
 
+// Search & Status Filter
 $search = $_GET['search'] ?? '';
 $status_filter = $_GET['status_filter'] ?? '';
 
-
+// Base WHERE clause
 $where = " WHERE (p.name LIKE :search) ";
 $params = ['search' => "%$search%"];
 
@@ -22,15 +23,15 @@ if ($status_filter == 'Overdue') {
     $where .= " AND v.follow_up_due BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 7 DAY)";
 }
 
-
+// Total rows for pagination
 $count_sql = "SELECT COUNT(*) FROM visits v JOIN patients p ON v.patient_id = p.patient_id $where";
 $count_stmt = $pdo->prepare($count_sql);
 $count_stmt->execute($params);
 $total_rows = $count_stmt->fetchColumn();
 $total_pages = ceil($total_rows / $limit);
 
-
-$sql = "SELECT v.*, p.name,
+// Main visits query
+$sql = "SELECT v.*, p.name, p.patient_id,
         DATEDIFF(CURDATE(), v.visit_date) AS days_since_visit,
         (v.consultation_fee + v.lab_fee) AS total_bill,
         CASE 
@@ -85,22 +86,24 @@ $stmt->execute();
             <th>Total ($)</th>
             <th>Follow-up Due</th>
             <th>Status</th>
-            
-
         </tr>
     </thead>
     <tbody>
         <?php if ($stmt->rowCount() > 0): ?>
             <?php while($row = $stmt->fetch()): ?>
             <tr>
-                <td><strong><?= $row['name'] ?></strong></td>
+                <td>
+                    <a href="patient_visits.php?patient_id=<?= $row['patient_id'] ?>">
+                        <strong><?= htmlspecialchars($row['name']) ?></strong>
+                    </a>
+                </td>
                 <td><?= $row['visit_date'] ?></td>
                 <td><?= number_format($row['consultation_fee'], 2) ?></td>
                 <td><?= number_format($row['lab_fee'], 2) ?></td>
                 <td class="fw-bold"><?= number_format($row['total_bill'], 2) ?></td>
                 <td><?= $row['follow_up_due'] ?></td>
                 <td>
-                    <span class="badge <?= $row['visit_status'] == 'Overdue' ? 'bg-danger' : 'bg-success' ?>">
+                    <span class="badge <?= $row['visit_status'] == 'Overdue' ? 'bg-danger' : ($row['visit_status'] == 'Upcoming' ? 'bg-warning text-dark' : 'bg-success') ?>">
                         <?= $row['visit_status'] ?>
                     </span>
                 </td>
