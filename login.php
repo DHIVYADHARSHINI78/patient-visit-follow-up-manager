@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             } else {
                 header('Location: patient_view.php');
             }
-            exit(); // Redirection-ku apram kandippa exit() pannanum
+            exit();
         } else {
             $error = 'Invalid Login Credentials.';
         }
@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 </head>
 <body>
     <div class="login-card">
-        <h3 class="text-center fw-bold mb-4">Clinic Pro</h3>
+        <h3 class="text-center fw-bold mb-4">Clinic\ Pro</h3>
         <?php if ($error): ?> <div class="alert alert-danger small text-center"><?= $error ?></div> <?php endif; ?>
         <form method="POST">
             <div class="mb-3">

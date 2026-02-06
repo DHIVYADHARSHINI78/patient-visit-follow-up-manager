@@ -3,7 +3,6 @@ require_once __DIR__ . '/../config/init.php';
 require_once '../config/db.php';
 include '../includes/header.php';
 
-
 $limit = 5;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 if ($page < 1) $page = 1;
@@ -11,7 +10,6 @@ $offset = ($page - 1) * $limit;
 
 $search = $_GET['search'] ?? '';
 $status_filter = $_GET['status_filter'] ?? '';
-
 
 $where = " WHERE (p.name LIKE :search) ";
 $params = ['search' => "%$search%"];
@@ -51,87 +49,96 @@ $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
 $stmt->execute();
 ?>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>All Medical Visits</h2>
-    <a href="add.php" class="btn btn-primary">+ Record New Visit</a>
-</div>
+<div class="container-fluid px-4 mt-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-3">
+        <h2 class="mb-0">All Medical Visits</h2>
+        <a href="add.php" class="btn btn-primary w-100 w-md-auto">+ Record New Visit</a>
+    </div>
 
-<form method="GET" class="row g-3 mb-4 bg-light p-3 rounded border shadow-sm">
-    <div class="col-md-5">
-        <input type="text" name="search" class="form-control" placeholder="Search by Patient Name..." value="<?= htmlspecialchars($search) ?>">
-    </div>
-    <div class="col-md-4">
-        <select name="status_filter" class="form-control">
-            <option value="">All Statuses</option>
-            <option value="Overdue" <?= $status_filter == 'Overdue' ? 'selected' : '' ?>>Overdue</option>
-            <option value="Upcoming" <?= $status_filter == 'Upcoming' ? 'selected' : '' ?>>Upcoming (Next 7 Days)</option>
-        </select>
-    </div>
-    <div class="col-md-3">
-        <div class="btn-group w-100">
-            <button type="submit" class="btn btn-secondary">Filter</button>
-            <a href="list.php" class="btn btn-outline-danger">Clear</a>
+    <form method="GET" class="row g-2 mb-4 bg-white p-3 rounded shadow-sm border">
+        <div class="col-12 col-md-5">
+            <input type="text" name="search" class="form-control" placeholder="Search Patient..." value="<?= htmlspecialchars($search) ?>">
+        </div>
+        <div class="col-12 col-sm-6 col-md-4">
+            <select name="status_filter" class="form-select">
+                <option value="">All Statuses</option>
+                <option value="Overdue" <?= $status_filter == 'Overdue' ? 'selected' : '' ?>>Overdue</option>
+                <option value="Upcoming" <?= $status_filter == 'Upcoming' ? 'selected' : '' ?>>Upcoming (7 Days)</option>
+            </select>
+        </div>
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-secondary flex-grow-1">Filter</button>
+                <a href="list.php" class="btn btn-outline-danger">Clear</a>
+            </div>
+        </div>
+    </form>
+
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-nowrap">Patient</th>
+                        <th class="text-nowrap">Visit Date</th>
+                        <th class="text-nowrap d-none d-lg-table-cell">Consultation</th>
+                        <th class="text-nowrap d-none d-lg-table-cell">Lab Fee</th>
+                        <th class="text-nowrap">Total</th>
+                        <th class="text-nowrap">Follow-up</th>
+                        <th class="text-nowrap text-center">Status</th>
+                        <th class="text-nowrap text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php if ($stmt->rowCount() > 0): ?>
+                    <?php while($row = $stmt->fetch()): ?>
+                    <tr>
+                        <td>
+                            <div class="fw-bold text-primary"><?= htmlspecialchars($row['name']) ?></div>
+                            <small class="text-muted d-lg-none">
+                                Fees: $<?= number_format($row['total_bill'], 2) ?>
+                            </small>
+                        </td>
+                        <td class="text-nowrap small"><?= $row['visit_date'] ?></td>
+                        <td class="d-none d-lg-table-cell">$<?= number_format($row['consultation_fee'], 2) ?></td>
+                        <td class="d-none d-lg-table-cell">$<?= number_format($row['lab_fee'], 2) ?></td>
+                        <td class="fw-bold">$<?= number_format($row['total_bill'], 2) ?></td>
+                        <td class="text-nowrap small"><?= $row['follow_up_due'] ?></td>
+                        <td class="text-center">
+                            <span class="badge rounded-pill <?= $row['visit_status'] == 'Overdue' ? 'bg-danger' : ($row['visit_status'] == 'Upcoming' ? 'bg-warning text-dark' : 'bg-success') ?>">
+                                <?= $row['visit_status'] ?>
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <a href="patient_visits.php?id=<?= $row['patient_id'] ?>" class="btn btn-sm btn-outline-info shadow-sm">
+                                <i class="bi bi-eye"></i> <span class="d-none d-md-inline">History</span>
+                            </a>
+                        </td>
+                    </tr>
+                    <?php endwhile; ?>
+                <?php else: ?>
+                    <tr><td colspan="8" class="text-center py-5 text-muted">No visits found.</td></tr>
+                <?php endif; ?>
+            </tbody>
+            </table>
         </div>
     </div>
-</form>
 
-<table class="table table-hover border shadow-sm">
-    <thead class="table-dark">
-        <tr>
-            <th>Patient</th>
-            <th>Visit Date</th>
-            <th>Consultation $</th>
-            <th>Lab $</th>
-            <th>Total $</th>
-            <th>Follow-up Due</th>
-            <th>Status</th>
-            <th>History</td>
-        </tr>
-    </thead>
-    <tbody>
-    <?php if ($stmt->rowCount() > 0): ?>
-        <?php while($row = $stmt->fetch()): ?>
-        <tr>
-            <td>
-                <strong><?= htmlspecialchars($row['name']) ?></strong>
-            </td>
-            <td><?= $row['visit_date'] ?></td>
-            <td><?= number_format($row['consultation_fee'], 2) ?></td>
-            <td><?= number_format($row['lab_fee'], 2) ?></td>
-            <td class="fw-bold"><?= number_format($row['total_bill'], 2) ?></td>
-            <td><?= $row['follow_up_due'] ?></td>
-            <td>
-                <span class="badge <?= $row['visit_status'] == 'Overdue' ? 'bg-danger' : ($row['visit_status'] == 'Upcoming' ? 'bg-warning text-dark' : 'bg-success') ?>">
-                    <?= $row['visit_status'] ?>
-                </span>
-            </td>
-            <td>
-                <a href="patient_visits.php?id=<?= $row['patient_id'] ?>" class="btn btn-sm btn-outline-info">
-                    <i class="bi bi-clock-history"></i> History
-                </a>
-            </td>
-        </tr>
-        <?php endwhile; ?>
-    <?php else: ?>
-        <tr><td colspan="8" class="text-center py-4">No visits found matching your criteria.</td></tr>
+    <?php if ($total_pages > 1): ?>
+    <nav class="mt-4">
+        <ul class="pagination pagination-sm justify-content-center flex-wrap">
+            <?php for ($i = 1; $i <= $total_pages; $i++): 
+                $query = $_GET;
+                $query['page'] = $i;
+                $url = "?" . http_build_query($query);
+            ?>
+                <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
+                    <a class="page-link" href="<?= $url ?>"><?= $i ?></a>
+                </li>
+            <?php endfor; ?>
+        </ul>
+    </nav>
     <?php endif; ?>
-</tbody>
-</table>
-
-<?php if ($total_pages > 1): ?>
-<nav class="mt-4">
-    <ul class="pagination justify-content-center">
-        <?php for ($i = 1; $i <= $total_pages; $i++): 
-            $query = $_GET;
-            $query['page'] = $i;
-            $url = "?" . http_build_query($query);
-        ?>
-            <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
-                <a class="page-link" href="<?= $url ?>"><?= $i ?></a>
-            </li>
-        <?php endfor; ?>
-    </ul>
-</nav>
-<?php endif; ?>
+</div>
 
 <?php include '../includes/footer.php'; ?>

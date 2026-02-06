@@ -110,7 +110,7 @@ if (!isset($_SESSION['user_id'])) {
 
             <div class="d-flex align-items-center">
                 <span class="text-light me-3 small d-none d-lg-inline">
-                    <i class="bi bi-person-circle"></i> <?= htmlspecialchars($_SESSION['username'] ?? 'User') ?>
+                    <i class="bi bi-person-circle"></i> <?= htmlspecialchars($_SESSION['username'] ?? 'admin') ?>
                 </span>
                 <a href="/patient-visit-follow-up-manager/logout.php" class="btn btn-outline-danger btn-sm px-3">
                     Logout
